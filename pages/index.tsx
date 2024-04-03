@@ -8,7 +8,15 @@ import { useEffect, useRef, useState } from "react";
 
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  //messages is the text displayed on the ui. Stored in client session
+  const [clientMessages, setClientMessages] = useState<Message[]>([]);
+
+  /**
+  promptMessages is the message conversation as sent to the primary llm. Stored
+  here in session data
+  TODO: move promptMessages to db that lives with the filter
+  */
+  const [promptMessages, setPromptMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(true);
   const [gradeLevel, setGradeLevel] = useState<string>('');
@@ -21,13 +29,13 @@ export default function Home() {
   };
 
   const handleSend = async (message: Message) => {
-    const updatedMessages = [...messages, message];
-    console.log("Sending messages to API:", updatedMessages);
+    const updatedClientMessages = [...clientMessages, message];
+    console.log("Sending messages to API:", updatedClientMessages);
 
-    setMessages(updatedMessages);
+    setClientMessages(updatedClientMessages);
     setLoading(true);
 
-    const messagesToSend = updatedMessages.slice(1);
+    const clientMessagesToSend = updatedClientMessages.slice(1);
 
     const response = await fetch("/api/chat", {
       method: "POST",
@@ -35,7 +43,8 @@ export default function Home() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        messages: messagesToSend,
+        clientMessages: clientMessagesToSend,
+        promptMessages: promptMessages,
         grade_level: gradeLevel,
         academic_topic: academicTopic
       })
@@ -46,53 +55,29 @@ export default function Home() {
       throw new Error(response.statusText);
     }
 
-    const data = response.body;
+    const data = await response.json();
+    const clientMessage = data.clientMessage
+    const clientMessageObject: Message = {
+      role: 'assistant',
+      content: clientMessage
+    };
+    const updatedPromptMessages = data.promptMessages
 
-    if (!data) {
-      return;
-    }
-
+    setClientMessages(currentMessages => [...currentMessages, clientMessageObject]);
+    setPromptMessages(updatedPromptMessages)
     setLoading(false);
 
-    const reader = data.getReader();
-    const decoder = new TextDecoder();
-    let done = false;
-    let isFirst = true;
-
-    while (!done) {
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      const chunkValue = decoder.decode(value);
-
-      if (isFirst) {
-        isFirst = false;
-        setMessages((messages) => [
-          ...messages,
-          {
-            role: "assistant",
-            content: chunkValue
-          }
-        ]);
-      } else {
-        setMessages((messages) => {
-          const lastMessage = messages[messages.length - 1];
-          const updatedMessage = {
-            ...lastMessage,
-            content: lastMessage.content + chunkValue
-          };
-          return [...messages.slice(0, -1), updatedMessage];
-        });
-      }
-    }
   };
 
   const handleReset = () => {
-    setMessages([
+    setClientMessages([
       {
         role: "assistant",
         content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts. Before we get started, please provide your grade level and the class you are in. For example, "I'm in 10th grade and have questions related to my World History class."`
       }
     ]);
+    setPromptMessages([])
+    setModalOpen(true)
   };
 
   const handleModalSubmit = (grade: string, topic: string) => {
@@ -102,10 +87,10 @@ export default function Home() {
   };
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [clientMessages]);
 
   useEffect(() => {
-    setMessages([
+    setClientMessages([
       {
         role: "assistant",
         content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts. Before we get started, please provide your grade level and the class you are in. For example, "I'm in 10th grade and have questions related to my World History class."`
@@ -137,7 +122,7 @@ export default function Home() {
         <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
           <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
             <Chat
-              messages={messages}
+              messages={clientMessages}
               loading={loading}
               onSend={handleSend}
               onReset={handleReset}
