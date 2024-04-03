@@ -1,13 +1,18 @@
 import { Chat } from "@/components/Chat/Chat";
 import { Footer } from "@/components/Layout/Footer";
 import { Navbar } from "@/components/Layout/Navbar";
+import InputModal from "@/components/InputModal";
 import { Message } from "@/types";
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 
+
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [modalOpen, setModalOpen] = useState<boolean>(true);
+  const [gradeLevel, setGradeLevel] = useState<string>('');
+  const [academicTopic, setAcademicTopic] = useState<string>('');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -17,9 +22,12 @@ export default function Home() {
 
   const handleSend = async (message: Message) => {
     const updatedMessages = [...messages, message];
+    console.log("Sending messages to API:", updatedMessages);
 
     setMessages(updatedMessages);
     setLoading(true);
+
+    const messagesToSend = updatedMessages.slice(1);
 
     const response = await fetch("/api/chat", {
       method: "POST",
@@ -27,7 +35,9 @@ export default function Home() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        messages: updatedMessages
+        messages: messagesToSend,
+        grade_level: gradeLevel,
+        academic_topic: academicTopic
       })
     });
 
@@ -80,11 +90,16 @@ export default function Home() {
     setMessages([
       {
         role: "assistant",
-        content: `Hi there! I'm Chatbot UI, an AI assistant. I can help you with things like answering questions, providing information, and helping with tasks. How can I help you?`
+        content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts. Before we get started, please provide your grade level and the class you are in. For example, "I'm in 10th grade and have questions related to my World History class."`
       }
     ]);
   };
 
+  const handleModalSubmit = (grade: string, topic: string) => {
+    setGradeLevel(grade);
+    setAcademicTopic(topic);
+    setModalOpen(false);
+  };
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -93,7 +108,7 @@ export default function Home() {
     setMessages([
       {
         role: "assistant",
-        content: `Hi there! I'm Chatbot UI, an AI assistant. I can help you with things like answering questions, providing information, and helping with tasks. How can I help you?`
+        content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts. Before we get started, please provide your grade level and the class you are in. For example, "I'm in 10th grade and have questions related to my World History class."`
       }
     ]);
   }, []);
@@ -101,10 +116,10 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Chatbot UI</title>
+        <title>Concept bot</title>
         <meta
           name="description"
-          content="A simple chatbot starter kit for OpenAI's chat model using Next.js, TypeScript, and Tailwind CSS."
+          content="An educational chatbot powered by Nemo-guardrails, Llamaguard, and Openai."
         />
         <meta
           name="viewport"
@@ -132,6 +147,8 @@ export default function Home() {
         </div>
         <Footer />
       </div>
+      <InputModal isOpen={modalOpen} onClose={() => setModalOpen(false)} onSubmit={handleModalSubmit} />
+
     </>
   );
 }
