@@ -73,7 +73,7 @@ export default function Home() {
     setClientMessages([
       {
         role: "assistant",
-        content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts. Before we get started, please provide your grade level and the class you are in. For example, "I'm in 10th grade and have questions related to my World History class."`
+        content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts and work through difficult problems. Please ask a question related to the academic topic entered and we'll get started learning!"`
       }
     ]);
     setPromptMessages([])
@@ -93,7 +93,7 @@ export default function Home() {
     setClientMessages([
       {
         role: "assistant",
-        content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts. Before we get started, please provide your grade level and the class you are in. For example, "I'm in 10th grade and have questions related to my World History class."`
+        content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts and work through difficult problems. Please ask a question related to the academic topic entered and we'll get started learning!"`
       }
     ]);
   }, []);
@@ -104,7 +104,7 @@ export default function Home() {
         <title>Concept bot</title>
         <meta
           name="description"
-          content="An educational chatbot powered by Nemo-guardrails, Llamaguard, and Openai."
+          content="An educational ai-chatbot."
         />
         <meta
           name="viewport"
