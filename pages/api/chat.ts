@@ -1,5 +1,4 @@
 import { Message } from "@/types";
-import { OpenAIStream } from "@/utils";
 
 export const config = {
   runtime: "edge"
@@ -8,31 +7,41 @@ export const config = {
 const handler = async (req: Request): Promise<Response> => {
   try {
     const requestBody = await req.json();
-    const { messages, grade_level: gradeLevel, academic_topic: academicTopic } = requestBody as {
-      messages: Message[];
-      grade_level: string;
-      academic_topic: string;
-    };
+    console.log('requestBody :', requestBody)
+    const { clientMessages, promptMessages, grade_level: gradeLevel, academic_topic: academicTopic } = requestBody;
 
-    const charLimit = 12000;
-    let charCount = 0;
-    let messagesToSend = [];
+    const body = JSON.stringify({
+      promptMessages,
+      clientMessages,
+      gradeLevel,
+      academicTopic
+    });
 
-    for (let i = 0; i < messages.length; i++) {
-      const message = messages[i];
-      if (charCount + message.content.length > charLimit) {
-        break;
-      }
-      charCount += message.content.length;
-      messagesToSend.push(message);
+    console.log('Sending request body:', body);
+
+    const res = await fetch(`${process.env.FILTER_URL}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: body
+    });
+
+    if (!res.ok) {
+      const errorBody = await res.text();
+      console.error("Chatbot filter raised an error:", errorBody);
+      return new Response(`Chatbot filter raised an error (${res.status}): ${errorBody}`, { status: 500 });
     }
 
-    const stream = await OpenAIStream(messagesToSend, gradeLevel, academicTopic);
-    console.log("response stuff :", stream)
-    return new Response(stream);
+    const data = await res.json();
+    console.log("Response data from the filter:", data);
+
+    return new Response(JSON.stringify(data), {
+      headers: { "Content-Type": "application/json" }
+    });
   } catch (error) {
-    console.error(error);
-    return new Response("Error", { status: 500 });
+    console.error("Server error:", error);
+    return new Response("Server error", { status: 500 });
   }
 };
 
