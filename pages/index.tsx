@@ -73,7 +73,7 @@ export default function Home() {
     setClientMessages([
       {
         role: "assistant",
-        content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts and work through difficult problems. Please ask a question related to the academic topic entered and we'll get started learning!"`
+        content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts and work through difficult problems. Please ask a question related to the academic topic entered and we'll get started learning!`
       }
     ]);
     setPromptMessages([])
@@ -93,7 +93,7 @@ export default function Home() {
     setClientMessages([
       {
         role: "assistant",
-        content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts and work through difficult problems. Please ask a question related to the academic topic entered and we'll get started learning!"`
+        content: `Hi there! I'm Concept bot, an AI education assistant. I can help you better understand concepts and work through difficult problems. Please ask a question related to the academic topic entered and we'll get started learning!`
       }
     ]);
   }, []);

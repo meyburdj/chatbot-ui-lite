@@ -39,7 +39,9 @@ function InputModal({ isOpen, onClose, onSubmit }: InputModalProps) {
                     />
                 </div>
                 <div className="flex justify-end">
-                    <button onClick={() => onSubmit(gradeLevel, academicTopic)} className="button">
+                    <button onClick={() => onSubmit(gradeLevel, academicTopic)}
+                        className={`button ${!gradeLevel || !academicTopic ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={!gradeLevel || !academicTopic}>
                         Submit
                     </button>
                 </div>
