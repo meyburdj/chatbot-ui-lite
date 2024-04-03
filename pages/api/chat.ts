@@ -7,7 +7,6 @@ export const config = {
 const handler = async (req: Request): Promise<Response> => {
   try {
     const requestBody = await req.json();
-    console.log('requestBody :', requestBody)
     const { clientMessages, promptMessages, grade_level: gradeLevel, academic_topic: academicTopic } = requestBody;
 
     const body = JSON.stringify({
@@ -16,8 +15,6 @@ const handler = async (req: Request): Promise<Response> => {
       gradeLevel,
       academicTopic
     });
-
-    console.log('Sending request body:', body);
 
     const res = await fetch(`${process.env.FILTER_URL}`, {
       method: "POST",

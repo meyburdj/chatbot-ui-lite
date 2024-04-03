@@ -11,7 +11,6 @@ export const OpenAIStream = async (messages: Message[], gradeLevel: string, acad
     academicTopic
   })
 
-  console.log('body :', body)
   const res = await fetch(`${process.env.FILTER_URL}`, {
     headers: {
       "Content-Type": "application/json",
@@ -27,7 +26,7 @@ export const OpenAIStream = async (messages: Message[], gradeLevel: string, acad
     throw new Error(`chatbot filter raised an error (${res.status}): ${errorBody}`);
   }
   const data = await res.json();
-  console.log("Response data: ", data); const stream = new ReadableStream({
+  const stream = new ReadableStream({
     async start(controller) {
       const onParse = (event: ParsedEvent | ReconnectInterval) => {
         if (event.type === "event") {
