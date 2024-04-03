@@ -12,7 +12,7 @@ export const OpenAIStream = async (messages: Message[], gradeLevel: string, acad
   })
 
   console.log('body :', body)
-  const res = await fetch("http://localhost:5004/filter", {
+  const res = await fetch(`${process.env.FILTER_URL}`, {
     headers: {
       "Content-Type": "application/json",
       // Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
