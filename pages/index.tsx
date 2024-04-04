@@ -30,7 +30,6 @@ export default function Home() {
 
   const handleSend = async (message: Message) => {
     const updatedClientMessages = [...clientMessages, message];
-    console.log("Sending messages to API:", updatedClientMessages);
 
     setClientMessages(updatedClientMessages);
     setLoading(true);
